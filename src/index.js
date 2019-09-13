@@ -10,7 +10,7 @@ import ellipseForce from "./ellipseForce";
 
 let tickCount = 0;
 document.body.innerHTML =
-  '<svg width="960" height="600"></svg><span id="tickCount"></span><button type="button" onclick="window.tick()">Tick</button>';
+  '<svg width="960" height="600"></svg><div id="tickCount"></div><div id="gap"></div><button type="button" onclick="window.continue()">Continue</button>';
 window.getGraph = () => graph;
 var svg = select("svg"),
   width = +svg.attr("width"),
@@ -152,10 +152,8 @@ function ticked() {
   document.getElementById("tickCount").innerHTML = `tickCount === ${tickCount}`;
 }
 
-window.tick = () => {
-  console.log("ticked");
-  simulation.tick();
-  ticked();
+window.continue = () => {
+  simulation.restart();
 };
 
 // console.time("simulation");
