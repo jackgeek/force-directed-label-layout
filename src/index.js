@@ -8,12 +8,14 @@ import {
 } from "d3-force";
 import ellipseForce from "./ellipseForce";
 
+let tickCount = 0;
 document.body.innerHTML =
   '<svg width="960" height="600"></svg><span id="tickCount"></span><button type="button" onclick="window.tick()">Tick</button>';
 window.getGraph = () => graph;
 var svg = select("svg"),
   width = +svg.attr("width"),
-  height = +svg.attr("height");
+  height = +svg.attr("height"),
+  nodesAreOverlapping = true;
 
 // var color = d3.scaleOrdinal(d3.schemeCategory20);
 
@@ -59,10 +61,15 @@ var simulation = forceSimulation()
   )
   .force(
     "collide",
-    createForceWithFilter(ellipseForce(0, 0.1), ({ anchor }) => !anchor)
+    createForceWithFilter(
+      ellipseForce(1, () => {
+        nodesAreOverlapping = false;
+        simulation.stop();
+      }),
+      ({ anchor }) => !anchor
+    )
   )
-  .alphaTarget(0)
-  .stop();
+  .alphaTarget(0); // .stop();
 
 var link = svg
   .append("g")
@@ -108,11 +115,12 @@ var text = svg
   })
   .attr("fill", "white");
 
-simulation.nodes(graph.nodes); //.on("tick", ticked);
+simulation.nodes(graph.nodes).on("tick", ticked);
 
 simulation.force("link").links(graph.links);
-ticked();
+
 function ticked() {
+  tickCount += 1;
   link
     .attr("x1", function(d) {
       return d.source.x;
@@ -141,27 +149,22 @@ function ticked() {
     .attr("y", function(d) {
       return d.y;
     });
+  document.getElementById("tickCount").innerHTML = `tickCount === ${tickCount}`;
 }
-// let tickCount = 0;
-// for (
-//   let i = 0,
-//     n = Math.ceil(
-//       Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())
-//     );
-//   i < n;
-//   ++i
-// ) {
-//   simulation.tick();
-//   tickCount++;
-// }
-
-document.getElementById("tickCount").innerHTML = `tickCount === ${tickCount}`;
 
 window.tick = () => {
   console.log("ticked");
   simulation.tick();
   ticked();
 };
+
+// console.time("simulation");
+// while (nodesAreOverlapping) {
+//   simulation.tick();
+//   ticked();
+//   tickCount++;
+// }
+// console.timeEnd("simulation");
 
 // function dragstarted(d) {
 //   if (!d3.event.active) simulation.alphaTarget(0.3).restart();

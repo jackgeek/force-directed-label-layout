@@ -1,14 +1,14 @@
+function NOOP() {}
+
 function constant(x) {
   return function() {
     return x;
   };
 }
 
-export default function(padding, innerRepulsion) {
+export default function(innerRepulsion, onNoOverlappingNodes = NOOP) {
   var nodes;
 
-  if (typeof padding !== "function")
-    padding = constant(padding == null ? 4 : +padding);
   innerRepulsion = innerRepulsion == null ? 0.5 : +innerRepulsion;
 
   function force(alpha) {
@@ -17,7 +17,6 @@ export default function(padding, innerRepulsion) {
       n = nodes.length,
       // dimensions of this node
       node,
-      my_padding,
       my_w,
       my_h,
       my_x,
@@ -28,7 +27,6 @@ export default function(padding, innerRepulsion) {
       my_wh,
       // dimensions of the other node
       other,
-      other_padding,
       other_w,
       other_h,
       other_x,
@@ -53,13 +51,13 @@ export default function(padding, innerRepulsion) {
       d1,
       d2,
       force_ratio1,
-      force_ratio2;
+      force_ratio2,
+      areNodesOverlapping = false;
 
     for (i = 0; i < n; ++i) {
       node = nodes[i];
-      my_padding = +padding(node, i, nodes);
-      my_w = node.rx + my_padding;
-      my_h = node.ry + my_padding;
+      my_w = node.rx;
+      my_h = node.ry;
       my_w2 = my_w * my_w;
       my_h2 = my_h * my_h;
       my_wh = my_w * my_h;
@@ -71,9 +69,8 @@ export default function(padding, innerRepulsion) {
           continue;
         }
         other = nodes[j];
-        other_padding = +padding(other, j, nodes);
-        other_w = other.rx + other_padding;
-        other_h = other.ry + other_padding;
+        other_w = other.rx;
+        other_h = other.ry;
         other_x = other.x + other.vx;
         other_y = other.y + other.vy;
         dist_x = my_x - other_x;
@@ -131,6 +128,7 @@ export default function(padding, innerRepulsion) {
         x_component = dist_x / dist;
         y_component = dist_y / dist;
         if (gap < 0) {
+          areNodesOverlapping = true;
           // force GROWS as gap goes further into negative
           repulsion = Math.min(
             Math.max(1.0, innerRepulsion * force_ratio * -gap),
@@ -140,6 +138,10 @@ export default function(padding, innerRepulsion) {
           node.vy += repulsion * y_component;
         }
       }
+    }
+
+    if (!areNodesOverlapping) {
+      onNoOverlappingNodes();
     }
   }
 
@@ -153,19 +155,6 @@ export default function(padding, innerRepulsion) {
       return force;
     } else {
       return innerRepulsion;
-    }
-  };
-
-  force.padding = function(my_padding) {
-    if (arguments.length) {
-      if (typeof my_padding === "function") {
-        padding = my_padding;
-      } else {
-        padding = constant(+my_padding);
-      }
-      return force;
-    } else {
-      return padding;
     }
   };
 
