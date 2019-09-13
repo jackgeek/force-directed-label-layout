@@ -8,7 +8,6 @@ function addLabel(id) {
   const labelId = `Label ${id}`;
   graph.nodes.push({
     id: anchorId,
-    anchor: true,
     fx: 494.6045038849575,
     fy: 344.46397745101376,
     x: 494.6045038849575,

@@ -1,10 +1,12 @@
+/**
+ * The original solution comes from this library https://github.com/jpurma/d3-ellipse-force
+ * We have tweaked the original source code to suit our needs as follows:
+ * 1. Remove padding between nodes
+ * 2. Removed outerRepulse
+ * 3. Filter the nodes to not include fixed nodes when force.initialize is called
+ * 4. Added onNoOverlappingNodes called to detect when nodes are no longer overlapping *
+ */
 function NOOP() {}
-
-function constant(x) {
-  return function() {
-    return x;
-  };
-}
 
 export default function(innerRepulsion, onNoOverlappingNodes = NOOP) {
   var nodes;
@@ -146,7 +148,9 @@ export default function(innerRepulsion, onNoOverlappingNodes = NOOP) {
   }
 
   force.initialize = function(my_nodes) {
-    nodes = my_nodes;
+    nodes = my_nodes.filter(
+      ({ fx, fy }) => typeof fx === "undefined" && typeof fy === "undefined"
+    );
   };
 
   force.innerRepulsion = function(my_innerRepulsion) {

@@ -6,7 +6,10 @@ import {
   forceSimulation,
   forceCollide
 } from "d3-force";
-import ellipseForce from "./ellipseForce";
+import ellipseForce from "./labelForce";
+
+const unfixedNodes = ({ fx, fy }) =>
+  typeof fx === "undefined" && typeof fy === "undefined";
 
 let tickCount = 0;
 document.body.innerHTML =
@@ -26,32 +29,6 @@ for (var i = 0; i < graph.nodes.length; i++) {
   nd.ry = 12;
 }
 
-function createForceWithFilter(force, filter) {
-  const newForce = function newForce(...args) {
-    return force(...args);
-  };
-
-  if (
-    force.hasOwnProperty("initialize") &&
-    typeof force.initialize === "function"
-  ) {
-    newForce.initialize = nodes => force.initialize(nodes.filter(filter));
-  } else {
-    throw new Error("This force cannot be filtered!");
-  }
-
-  Object.keys(force).forEach(property => {
-    if (
-      typeof force[property] === "function" &&
-      !newForce.hasOwnProperty(property)
-    ) {
-      newForce[property] = (...args) => force[property](...args);
-    }
-  });
-
-  return newForce;
-}
-
 var simulation = forceSimulation()
   .force(
     "link",
@@ -61,13 +38,10 @@ var simulation = forceSimulation()
   )
   .force(
     "collide",
-    createForceWithFilter(
-      ellipseForce(1, () => {
-        nodesAreOverlapping = false;
-        simulation.stop();
-      }),
-      ({ anchor }) => !anchor
-    )
+    ellipseForce(1, () => {
+      nodesAreOverlapping = false;
+      simulation.stop();
+    })
   )
   .alphaTarget(0); // .stop();
 
@@ -86,7 +60,7 @@ var node = svg
   .append("g")
   .attr("class", "node")
   .selectAll("ellipse")
-  .data(graph.nodes.filter(({ anchor }) => !anchor))
+  .data(graph.nodes.filter(unfixedNodes))
   .enter()
   .append("ellipse")
   .attr("rx", function(d) {
@@ -105,7 +79,7 @@ var text = svg
   .append("g")
   .attr("class", "labels")
   .selectAll("text")
-  .data(graph.nodes.filter(({ anchor }) => !anchor))
+  .data(graph.nodes.filter(unfixedNodes))
   .enter()
   .append("text")
   .attr("dy", 2)
