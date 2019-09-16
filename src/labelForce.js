@@ -1,10 +1,10 @@
 /**
  * The original solution comes from this library https://github.com/jpurma/d3-ellipse-force
- * We have tweaked the original source code to suit our needs as follows:
- * 1. Remove padding between nodes
+ * We've tweaked the original source code to suit our needs as follows:
+ * 1. Removed padding between nodes
  * 2. Removed outerRepulse
- * 3. Filter the nodes to not include fixed nodes when force.initialize is called
- * 4. Added onNoOverlappingNodes called to detect when nodes are no longer overlapping *
+ * 3. Filtering the nodes to not include fixed nodes when force.initialize is called
+ * 4. Added onNoOverlappingNodes called to detect when nodes are no longer overlapping
  */
 function NOOP() {}
 
@@ -67,7 +67,7 @@ export default function(innerRepulsion, onNoOverlappingNodes = NOOP) {
       my_y = node.y + node.vy;
 
       for (j = 0; j < n; ++j) {
-        if (j == i) {
+        if (j === i) {
           continue;
         }
         other = nodes[j];
@@ -77,15 +77,15 @@ export default function(innerRepulsion, onNoOverlappingNodes = NOOP) {
         other_y = other.y + other.vy;
         dist_x = my_x - other_x;
         dist_y = my_y - other_y;
-        if (dist_x == 0 && dist_y == 0) {
+        if (dist_x === 0 && dist_y === 0) {
           node.vx += Math.random() * 4 - 2;
           node.vy += Math.random() * 4 - 2;
           continue;
-        } else if (dist_x == 0) {
+        } else if (dist_x === 0) {
           force_ratio = (my_h / my_w + other_h / other_w) / 2;
           dist = Math.abs(dist_y);
           gap = dist - my_h - other_h;
-        } else if (dist_y == 0) {
+        } else if (dist_y === 0) {
           force_ratio = 1;
           dist = Math.abs(dist_x);
           gap = dist - my_w - other_w;

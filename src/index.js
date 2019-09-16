@@ -1,26 +1,20 @@
 import { select } from "d3-selection";
 import graph from "./graph";
-import {
-  forceCenter,
-  forceLink,
-  forceSimulation,
-  forceCollide
-} from "d3-force";
+import { forceLink, forceSimulation } from "d3-force";
 import ellipseForce from "./labelForce";
 
 const unfixedNodes = ({ fx, fy }) =>
   typeof fx === "undefined" && typeof fy === "undefined";
 
 let tickCount = 0;
-document.body.innerHTML =
-  '<svg width="960" height="600"></svg><div id="tickCount"></div><div id="gap"></div><button type="button" onclick="window.continue()">Continue</button>';
-window.getGraph = () => graph;
-var svg = select("svg"),
-  width = +svg.attr("width"),
-  height = +svg.attr("height"),
-  nodesAreOverlapping = true;
 
-// var color = d3.scaleOrdinal(d3.schemeCategory20);
+document.body.innerHTML = `
+    <svg width="960" height="600"></svg>
+    <div id="tickCount"></div>
+`;
+
+window.getGraph = () => graph;
+var svg = select("svg");
 
 var nd;
 for (var i = 0; i < graph.nodes.length; i++) {
@@ -39,11 +33,10 @@ var simulation = forceSimulation()
   .force(
     "collide",
     ellipseForce(1, () => {
-      nodesAreOverlapping = false;
       simulation.stop();
     })
   )
-  .alphaTarget(0); // .stop();
+  .alphaTarget(0);
 
 var link = svg
   .append("g")
@@ -69,11 +62,6 @@ var node = svg
   .attr("ry", function(d) {
     return d.ry;
   });
-// .attr("fill", function(d) { return color(d.group); })
-// .call(d3.drag()
-//     .on("start", dragstarted)
-//     .on("drag", dragged)
-//     .on("end", dragended));
 
 var text = svg
   .append("g")
@@ -125,32 +113,3 @@ function ticked() {
     });
   document.getElementById("tickCount").innerHTML = `tickCount === ${tickCount}`;
 }
-
-window.continue = () => {
-  simulation.restart();
-};
-
-// console.time("simulation");
-// while (nodesAreOverlapping) {
-//   simulation.tick();
-//   ticked();
-//   tickCount++;
-// }
-// console.timeEnd("simulation");
-
-// function dragstarted(d) {
-//   if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-//   d.fx = d.x;
-//   d.fy = d.y;
-// }
-
-// function dragged(d) {
-//   d.fx = d3.event.x;
-//   d.fy = d3.event.y;
-// }
-
-// function dragended(d) {
-//   if (!d3.event.active) simulation.alphaTarget(0);
-//   d.fx = null;
-//   d.fy = null;
-// }
