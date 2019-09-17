@@ -1,6 +1,6 @@
 import { forceLink, forceSimulation } from "d3-force";
 
-export default function(d3Graph, { nodes, links, labels }) {
+export default function(d3Graph, { nodes, links }) {
   const simulation = forceSimulation(nodes);
   simulation
     .force("link", forceLink(links).id(d => d.id))
