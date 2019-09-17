@@ -1,14 +1,14 @@
 import { select } from "d3-selection";
 import graphData from "./graphData";
-import nodelinkLayout from "./nodelinkLayout";
-import labelLayout from "./labelLayout";
+import arrangeNodesAndLinks from "./arrangeNodesAndLinks";
+import shiftOverlappingLabels from "./shiftOverlappingLabels";
 
 document.body.innerHTML = `<svg width="960" height="600"></svg>`;
 
 const svg = select("svg");
-const { links, labels } = graphData;
+const { nodes, links, labels } = graphData;
 
-svg
+const link = svg
   .append("g")
   .attr("class", "link")
   .selectAll("line")
@@ -19,7 +19,7 @@ svg
     return Math.sqrt(d.value);
   });
 
-svg
+const node = svg
   .append("g")
   .attr("class", "node")
   .selectAll("ellipse")
@@ -33,7 +33,7 @@ svg
     return d.ry;
   });
 
-svg
+const text = svg
   .append("g")
   .attr("class", "labels")
   .selectAll("text")
@@ -47,5 +47,42 @@ svg
   })
   .attr("fill", "white");
 
-nodelinkLayout(svg, graphData);
-labelLayout(svg, labels);
+arrangeNodesAndLinks(nodes, links);
+shiftOverlappingLabels(labels);
+
+updateNodesAndLinks();
+updateLinkLabels();
+
+function updateNodesAndLinks() {
+  link
+    .attr("x1", function(d) {
+      return d.source.x;
+    })
+    .attr("y1", function(d) {
+      return d.source.y;
+    })
+    .attr("x2", function(d) {
+      return d.target.x;
+    })
+    .attr("y2", function(d) {
+      return d.target.y;
+    });
+
+  node
+    .attr("cx", function(d) {
+      return d.x;
+    })
+    .attr("cy", function(d) {
+      return d.y;
+    });
+}
+
+function updateLinkLabels() {
+  text
+    .attr("x", function(d) {
+      return d.x;
+    })
+    .attr("y", function(d) {
+      return d.y;
+    });
+}
