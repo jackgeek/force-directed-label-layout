@@ -12,7 +12,7 @@ for (let i = 0; i < 100; i++) {
     x: 494.6045038849575,
     y: 344.46397745101376,
     rx: label.length * 4.5,
-    ry: 12
+    ry: 20
   });
 }
 
@@ -26,7 +26,7 @@ graphData.nodes.forEach((labelNode, index) => {
     id: anchorId,
     fx: labelNode.x,
     fy: labelNode.y,
-    rx: anchorId.length * 4.5
+    rx: anchorId.length
   });
 
   graphData.links.push({
