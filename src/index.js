@@ -4,7 +4,7 @@ document.body.innerHTML = `<svg width="960" height="600"></svg>`;
 
 const allLabels = [];
 
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 100; i++) {
   const label = `Label ${i}`;
 
   allLabels.push({
