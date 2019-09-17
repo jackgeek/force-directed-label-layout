@@ -7,7 +7,6 @@ export default function(d3Graph, labels) {
     .force(
       "collide",
       ellipseForce(1, () => {
-        console.log("no overlapping labels");
         simulation.stop();
       })
     )
