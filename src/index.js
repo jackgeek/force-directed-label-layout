@@ -1,19 +1,51 @@
+import { select } from "d3-selection";
+import graphData from "./graphData";
+import nodelinkLayout from "./nodelinkLayout";
 import labelLayout from "./labelLayout";
 
 document.body.innerHTML = `<svg width="960" height="600"></svg>`;
 
-const allLabels = [];
+const svg = select("svg");
+const { links, labels } = graphData;
 
-for (let i = 0; i < 100; i++) {
-  const label = `Label ${i}`;
-
-  allLabels.push({
-    id: label,
-    x: 494.6045038849575,
-    y: 344.46397745101376,
-    rx: label.length * 4.5,
-    ry: 12
+svg
+  .append("g")
+  .attr("class", "link")
+  .selectAll("line")
+  .data(links)
+  .enter()
+  .append("line")
+  .attr("stroke-width", function(d) {
+    return Math.sqrt(d.value);
   });
-}
 
-labelLayout(allLabels);
+svg
+  .append("g")
+  .attr("class", "node")
+  .selectAll("ellipse")
+  .data(labels)
+  .enter()
+  .append("ellipse")
+  .attr("rx", function(d) {
+    return d.rx;
+  })
+  .attr("ry", function(d) {
+    return d.ry;
+  });
+
+svg
+  .append("g")
+  .attr("class", "labels")
+  .selectAll("text")
+  .data(labels)
+  .enter()
+  .append("text")
+  .attr("dy", 2)
+  .attr("text-anchor", "middle")
+  .text(function(d) {
+    return d.id;
+  })
+  .attr("fill", "white");
+
+nodelinkLayout(svg, graphData);
+labelLayout(svg, labels);
