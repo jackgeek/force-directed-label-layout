@@ -1,23 +1,27 @@
 import { select } from "d3-selection";
 
 export default function renderGraph(graph) {
-  document.body.innerHTML = `<svg width="960" height="600"></svg>`;
-
   const svg = select("svg");
   const { nodes, links } = graph;
 
-  const link = svg
+  const group = svg.append("g").attr("class", "main");
+
+  const unfixedNodes = ({ fx, fy }) =>
+    typeof fx === "undefined" && typeof fy === "undefined";
+
+  const link = group
     .append("g")
     .attr("class", "link")
     .selectAll("line")
     .data(links)
     .enter()
     .append("line")
+    .attr("stroke", "blue")
     .attr("stroke-width", function(d) {
-      return Math.sqrt(d.value);
+      return 5;
     });
 
-  const node = svg
+  const node = group
     .append("g")
     .attr("class", "node")
     .selectAll("ellipse")
@@ -31,26 +35,21 @@ export default function renderGraph(graph) {
       return d.ry;
     });
 
-  const text = svg
+  const text = group
     .append("g")
     .attr("class", "labels")
     .selectAll("text")
-    .data(nodes)
+    .data(nodes.filter(unfixedNodes))
     .enter()
     .append("text")
     .attr("dy", 2)
     .attr("text-anchor", "middle")
     .text(function(d, index) {
-      return index;
+      return `${d.id} ${index}`;
     })
-    .attr("fill", "white");
+    .attr("fill", "red");
 
-  function updateRenderedGraph() {
-    updateNodesAndLinks();
-    updateLinkLabels();
-  }
-
-  function updateNodesAndLinks() {
+  function updateGraph() {
     link
       .attr("x1", function(d) {
         return d.source.x;
@@ -72,9 +71,7 @@ export default function renderGraph(graph) {
       .attr("cy", function(d) {
         return d.y;
       });
-  }
 
-  function updateLinkLabels() {
     text
       .attr("x", function(d) {
         return d.x;
@@ -84,5 +81,7 @@ export default function renderGraph(graph) {
       });
   }
 
-  return updateRenderedGraph;
+  updateGraph();
+
+  return updateGraph;
 }
